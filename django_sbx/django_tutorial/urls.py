@@ -28,12 +28,8 @@ urlpatterns = [
     path("<int:question_id>/vote_form/", views.vote_form, name="vote_form"),
     path("<int:question_id>/results_templated/", views.results_templated, name="results_templated"),
 
+    path("gv/", views.IndexView.as_view(), name="gv_index"),
+    path("gv/<int:pk>/", views.DetailView.as_view(), name="gv_detail"),
+    path("gv/<int:pk>/results/", views.ResultsView.as_view(), name="gv_results"),
+    path("gv/<int:question_id>/vote/", views.vote_form_2, name="vote_form_2"),
 ]
-
-# generic views 
-"""
-path("gv/", views.IndexView.as_view(), name="gv-index"),
-path("gv/<int:pk>/", views.DetailView.as_view(), name="gv-detail"),
-path("gv/<int:pk>/results/", views.ResultsView.as_view(), name="gv-results"),
-path("gv/<int:question_id>/vote/", views.vote, name="vote_form"),
-"""

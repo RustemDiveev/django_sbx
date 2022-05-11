@@ -8,6 +8,7 @@ from .models import Question, Choice
 
 # Create your views here.
 
+# Быдловью
 def index(request):
     """
         Простейшее представление
@@ -33,6 +34,7 @@ def vote(request, question_id):
     """
     return HttpResponse("You're voting on question %s." % question_id)
 
+# Более продвинутые быдловью с шаблонами и формами 
 def index_last_5(request):
     """
         Последние 5 вопросов 
@@ -125,3 +127,70 @@ def results_templated(request, question_id):
     """
     question = get_object_or_404(Question, pk=question_id)
     return render(request, "django_tutorial/results_templated.html", {"question": question})
+
+# Вью, основанные на классах 
+# Нужно или указывать модель, или get_queryset
+"""
+    ListView по умолчанию использует шаблон вида <app_name>/<model_name>_list.html
+    Также здесь по умолчанию используется lower-переменная, обозначающая указанную модель: <model>_list
+    DetailView по умолчанию использует шаблон вида <app_name>/<model_name>_detail.html
+    Также здесь по умолчанию используется lower-переменная, обозначающая указанную модель: <model>
+"""
+class IndexView(generic.ListView):
+    """
+        Список из последних 5 вопросов 
+        Для списка объектов
+    """
+    template_name = "django_tutorial/gv_index.html"
+    # Позволяет задать название переменной для контекста, чтобы потом использовать её в шаблоне 
+    context_object_name = "latest_question_list"
+
+    def get_queryset(self):
+        """
+            Returns last five published questions 
+        """
+        return Question.objects.order_by("-pub_date")[:5]
+
+class DetailView(generic.DetailView):
+    """
+        Расширенная информация о вопросе 
+        Для определенного объекта
+    """
+    model = Question
+    template_name = "django_tutorial/gv_detail.html"
+
+class ResultsView(generic.DetailView):
+    """
+        Результаты опроса 
+        Для определенного объекта
+    """
+    model = Question
+    template_name = "django_tutorial/gv_results.html"
+
+def vote_form_2(request, question_id):
+    """
+        Голосование с использованием шаблона, где есть форма 
+        Сделана как копия, чтобы делать редиректы на generic-представления
+    """
+    question = get_object_or_404(Question, pk=question_id)
+    try:
+        # request.POST - словарь того, что отправлено с веб-формы 
+        selected_choice = question.choice_set.get(pk=request.POST["choice"])
+    except (KeyError, Choice.DoesNotExist):
+        return render(
+            request=request,
+            template_name="django_tutorial/gv_detail.html",
+            context={
+                "question": question,
+                "error_message": "You didn't select a choice"
+            }
+        )
+    else:
+        selected_choice.votes += 1 
+        selected_choice.save()
+        # Всегда необходимо возвращать HttpResponseDirect после выполнения POST-запроса, 
+        # чтобы не сабмитить одну форму несколько раз 
+        return HttpResponseRedirect(reverse(
+            "django_tutorial:gv_results",
+            args=(question_id,)
+        ))
