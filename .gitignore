@@ -132,3 +132,9 @@ dmypy.json
 
 # Custom settings 
 custom_settings.py
+
+# DB Configs
+postgresql.sql
+
+# Superuser settings 
+django_superuser.txt 
