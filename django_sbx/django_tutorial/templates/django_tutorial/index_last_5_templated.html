@@ -1,0 +1,16 @@
+{% if latest_question_list %}
+    <ul>
+        {% for question in latest_question_list %}
+            <li>
+                {% comment %}
+                <!-- избавляемся от хардкода в URL при помощи параметра name в path() -->
+                <a href="/django_tutorial/polls/{{ question.id }}/">{{ question.question_text }}</a>
+                {% endcomment %}
+
+                <a href="{% url 'django_tutorial:detail_form' question.id %}">{{ question.question_text }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No polls are available</p>
+{% endif %}
