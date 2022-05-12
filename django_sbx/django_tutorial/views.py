@@ -159,8 +159,16 @@ class DetailView(generic.DetailView):
         Расширенная информация о вопросе 
         Для определенного объекта
     """
-    model = Question
+    # Для фикса - наличие переменной model перезатирает get_queryset
+    # model = Question
     template_name = "django_tutorial/gv_detail.html"
+
+    # Фикс для того, чтобы пользователь не мог подставить id вопроса в URL и обратиться к вопросу с будущей датой публикации 
+    def get_queryset(self):
+        """
+            Excludes any questions that aren't published yet.
+        """
+        return Question.objects.filter(pub_date__lte=timezone.now())
 
 class ResultsView(generic.DetailView):
     """
