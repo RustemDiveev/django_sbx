@@ -55,10 +55,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'django_sbx.urls'
 
+# Скорректировал, чтобы учесть templates из папки приложения - DIRS ранее был пустым списком
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

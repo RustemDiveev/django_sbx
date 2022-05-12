@@ -2,6 +2,7 @@ import datetime
 
 from django.db import models
 from django.utils import timezone 
+from django.contrib import admin 
 
 # Create your models here.
 class Question(models.Model):
@@ -17,6 +18,14 @@ class Question(models.Model):
         """
         return self.question_text
 
+    # Для того, чтобы красиво показывать в админке 
+    # результаты работы пользовательского метода и задать сортировку и надпись 
+    # Это ДЕКОРАТОР!
+    @admin.display(
+        boolean=True,
+        ordering="pub_date",
+        description="Published recently?"
+    )
     def was_published_recently(self):
         """
             Был ли вопрос опубликован сегодня
