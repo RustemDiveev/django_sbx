@@ -18,5 +18,5 @@ urlpatterns = [
     path("qs-api-auth", include("rest_framework.urls", namespace="rest_framework")),
 
     path("snippets/", views.SnippetCBListView.as_view()),
-    path("snippets/<int:pk>/", views.SnippetCBListView.as_view()),
+    path("snippets/<int:pk>/", views.SnippetCBDetailView.as_view()),
 ]

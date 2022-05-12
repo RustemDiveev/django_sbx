@@ -39,6 +39,7 @@ class SnippetCBListView(ListView):
         Class-based list view для Snippet 
     """
     model = Snippet
+    template_name = "drf_tutorial/snippet_list.html"
 
     @csrf_exempt
     def snippet_list(request):
@@ -65,6 +66,7 @@ class SnippetCBDetailView(DetailView):
         Class based detail view для Snippet 
     """
     model = Snippet 
+    template_name = "drf_tutorial/snippet_detail.html"
 
     @csrf_exempt
     def snippet_detail(request, pk):
