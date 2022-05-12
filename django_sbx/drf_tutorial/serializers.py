@@ -59,3 +59,11 @@ class SnippetSerializer(serializers.Serializer):
         instance.save()
 
         return instance 
+
+# также как есть Form и ModelForm - так и есть Serializer и ModelSerializer 
+# следует понимать, что это всего лишь шорткат для создания сериализатора, который 
+# автоматически определяет набор полей, содержит простые имплементации методов create() и update()
+class SnippetModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Snippet
+        fields = ["id", "title", "code", "linenos", "language", "style"]
