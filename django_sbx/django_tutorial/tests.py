@@ -117,7 +117,6 @@ class QuestionDetailViewTests(TestCase):
         url = reverse("django_tutorial:gv_detail", args=(future_question.id,))
         response = self.client.get(url)
         
-        # self.assertEqual(response.context["question"], future_question)
         self.assertEqual(response.status_code, 404)
 
     def test_past_question(self):
