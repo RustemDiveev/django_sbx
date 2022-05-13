@@ -17,6 +17,20 @@ urlpatterns = [
     path("qs", include(router.urls)),
     path("qs-api-auth", include("rest_framework.urls", namespace="rest_framework")),
 
-    path("snippets/", views.SnippetCBListView.as_view()),
-    path("snippets/<int:pk>/", views.SnippetCBDetailView.as_view()),
+    path("snippets/", views.snippet_list),
+    path("snippets/<int:pk>/", views.snippet_detail),
+    
+    path("api_snippets/", views.snippet_apiview_list),
+    path("api_snippets/<int:pk>", views.snippet_apiview_detail),
 ]
+
+"""
+    При помощи httpie:
+    pip install httpie 
+    Можно проверять что вернет представление
+
+    В моем примере это:
+    http http://127.0.0.1:8000/drf/snippets/
+
+    Либо через web-браузер
+"""
