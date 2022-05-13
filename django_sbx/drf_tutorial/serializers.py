@@ -64,6 +64,24 @@ class SnippetSerializer(serializers.Serializer):
 # следует понимать, что это всего лишь шорткат для создания сериализатора, который 
 # автоматически определяет набор полей, содержит простые имплементации методов create() и update()
 class SnippetModelSerializer(serializers.ModelSerializer):
+
+    # аргумент source определяет какой атрибут используется для заполнения поля 
+    # и может показывать на любой атрибут сериализируемого экземпляра 
+    # ReadOnlyField будет использоваться для сериализованных представлений
+    # но не будет использоваться для обновления модели во время десериализации
+    # Можно было использовать CharField(read_only=True)
+    owner = serializers.ReadOnlyField(source="owner.username")
+
     class Meta:
         model = Snippet
-        fields = ["id", "title", "code", "linenos", "language", "style"]
+        fields = ["id", "title", "code", "linenos", "language", "style", "owner"]
+
+# Добавление endpoint для модели User 
+class UserSerializer(serializers.ModelSerializer):
+    # Так как snippets - обратная связь с моделью User, это поле не будет включаться по умолчанию в ModelSerializer 
+    # Поэтому нам придется задать его явно 
+    snippets = serializers.PrimaryKeyRelatedField(many=True, queryset=Snippet.objects.all())
+
+    class Meta:
+        model = User 
+        fields = ["id", "username", "snippets"]

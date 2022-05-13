@@ -22,4 +22,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('django_tutorial/', include('django_tutorial.urls')),
     path('drf/', include('drf_tutorial.urls')),
+    path('api-auth/', include('rest_framework.urls')),
 ]

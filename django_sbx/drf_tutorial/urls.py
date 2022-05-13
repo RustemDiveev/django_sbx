@@ -16,7 +16,13 @@ urlpatterns_formated = [
     path("format_snippets/<int:pk>/", views.snippet_format_detail),
 
     path("cbv_snippets/", views.SnippetList.as_view()),
-    path("cbv_snippets/<int:pk>/", views.SnippetDetail.as_view())
+    path("cbv_snippets/<int:pk>/", views.SnippetDetail.as_view()),
+
+    path("users/", views.UserList.as_view()),
+    path("users/<int:pk>/", views.UserDetail.as_view()),
+
+    path("auth_snippets/", views.SnippetAuthPermList.as_view()),
+    path("auth_snippets/<int:pk>/", views.SnippetAuthPermDetail.as_view()),
 ]
 urlpatterns_formated = format_suffix_patterns(urlpatterns_formated)
 

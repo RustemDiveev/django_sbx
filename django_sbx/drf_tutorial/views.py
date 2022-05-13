@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 
-from drf_tutorial.serializers import QSGroupSerializer, QSUserSerializer, SnippetModelSerializer
+from drf_tutorial.serializers import QSGroupSerializer, QSUserSerializer, SnippetModelSerializer, UserSerializer
 from drf_tutorial.models import Snippet 
 
 # Вместо множества представлений - общее поведение группируется во viewset
@@ -271,4 +271,28 @@ class SnippetGenericList(generics.ListCreateAPIView):
 class SnippetGenericDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Snippet.objects.all()
     serializer_class = SnippetModelSerializer
+
+# Добавление представлений только на чтение 
+class UserList(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+class UserDetail(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+class SnippetAuthPermList(generics.ListCreateAPIView):
+    queryset = Snippet.objects.all()
+    serializer_class = SnippetModelSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    # Можно переопределить этот метод для контроля управления сохранением экземпляра модели 
+    # Теперь при создании сниппета будет сохраняться и owner
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+class SnippetAuthPermDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Snippet.objects.all()
+    serializer_class = SnippetModelSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     
