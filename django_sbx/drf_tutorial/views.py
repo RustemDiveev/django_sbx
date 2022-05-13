@@ -1,13 +1,13 @@
 from django.contrib.auth.models import User, Group 
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import ListView, DetailView
 from django.shortcuts import get_object_or_404
 
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, generics, mixins 
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 
 from drf_tutorial.serializers import QSGroupSerializer, QSUserSerializer, SnippetModelSerializer
 from drf_tutorial.models import Snippet 
@@ -143,3 +143,132 @@ def snippet_apiview_detail(request, pk):
     elif request.method == "DELETE":
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+"""
+    Добавление необязательных форматных суффиксов к URL
+    Чтобы получить преимущество от того, что responses не привязаны к одному типу контента, 
+    можно добавить поддержку форматных суффиксов к API endpoints. 
+
+    Использование форматных суффиксов дает URL, которые явно ссылаются на определенный формат и означают, 
+    что API сможет поддерживать URL следующего вида (т.е с форматом на конце):
+    http://example.com/api/items/4.json
+"""
+
+@api_view(["GET", "POST"])
+def snippet_format_list(request, format=None):
+    """
+        List all code snippets or create a new snippet.
+    """
+    if request.method == "GET":
+        snippets = Snippet.objects.all()
+        serializer = SnippetModelSerializer(snippets, many=True)
+        return Response(serializer.data)
+
+    elif request.method == "POST":
+        serializer = SnippetModelSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["GET", "PUT", "DELETE"])
+def snippet_format_detail(request, pk, format=None):
+    """
+        Retrieve, update or delete a code snippet.
+    """
+    snippet = get_object_or_404(Snippet, pk=pk)
+
+    if request.method == "GET":
+        serializer = SnippetModelSerializer(snippet)
+        return Response(serializer.data)
+
+    elif request.method == "PUT":
+        serializer = SnippetModelSerializer(snippet, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    elif request.method == "DELETE":
+        snippet.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+# Использование class-based views 
+# Дают лучшее разделение между различными методами HTTP
+class SnippetList(APIView):
+    """
+        List all snippets, or create a new snippet 
+    """
+    def get(self, request, format=None):
+        snippets = Snippet.objects.all()
+        serializer = SnippetModelSerializer(snippets, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = SnippetModelSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class SnippetDetail(APIView):
+    """
+        Retrieve, update or delete a snippet instance 
+    """
+    def get_object(self, pk):
+        try:
+            return Snippet.objects.get(pk=pk)
+        except Snippet.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        snippet = self.get_object(pk)
+        serializer = SnippetModelSerializer(snippet)
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        snippet = self.get_object(pk)
+        serializer = SnippetModelSerializer(snippet, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        snippet = self.get_object(pk)
+        snippet.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+# Написание Class-based views с использованием классов-примесей 
+class SnippetMixinList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+    queryset = Snippet.objects.all()
+    serializer_class = SnippetModelSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+    
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+class SnippetMixinDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+    queryset = Snippet.objects.all()
+    serializer_class = SnippetModelSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+# Использование универсальных основанных на классах представлений 
+class SnippetGenericList(generics.ListCreateAPIView):
+    queryset = Snippet.objects.all()
+    serializer_class = SnippetModelSerializer
+
+class SnippetGenericDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Snippet.objects.all()
+    serializer_class = SnippetModelSerializer
+    
