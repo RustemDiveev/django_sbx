@@ -18,11 +18,14 @@ urlpatterns_formated = [
     path("cbv_snippets/", views.SnippetList.as_view()),
     path("cbv_snippets/<int:pk>/", views.SnippetDetail.as_view()),
 
-    path("users/", views.UserList.as_view()),
-    path("users/<int:pk>/", views.UserDetail.as_view()),
+    path("users/", views.UserList.as_view(), name="user-list"),
+    path("users/<int:pk>/", views.UserDetail.as_view(), name="user-detail"),
 
-    path("auth_snippets/", views.SnippetAuthPermList.as_view()),
-    path("auth_snippets/<int:pk>/", views.SnippetAuthPermDetail.as_view()),
+    path("auth_snippets/", views.SnippetAuthPermList.as_view(), name="snippet-list"),
+    path("auth_snippets/<int:pk>/", views.SnippetAuthPermDetail.as_view(), name="snippet-detail"),
+
+    path("", views.api_root),
+    path("auth_snippets/<int:pk>/highlight/", views.SnippetHighlight.as_view(), name="snippet-highlight"),
 ]
 urlpatterns_formated = format_suffix_patterns(urlpatterns_formated)
 
@@ -88,4 +91,12 @@ urlpatterns = [
 
     Можно вставить сниппет, если добавить пароль и логин пользователя 
     http -a django-admin:AIX8klidp POST http://127.0.0.1:8000/drf/auth_snippets/ code="print('Django's admin snippet')"
+"""
+
+"""
+    Корневое API - ссылается на user-list и snippet-list 
+    Сериализатор сниппета ссылается на snippet-highlight 
+    Сериализатор пользователя включает поле, которое ссылается на snippet-detail 
+    Сериализаторы сниппета и пользователя включают в себя поля url, которые по умолчанию ссылаются на 
+        {model_name}-detail, которые в итоге будут snippet-detail, user-detail 
 """

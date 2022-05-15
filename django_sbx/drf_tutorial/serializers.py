@@ -87,3 +87,24 @@ class UserSerializer(serializers.ModelSerializer):
         model = User 
         fields = ("id", "username", "snippets")
         
+"""
+    Использование гиперсвязей в сериализаторах
+"""
+class SnippetHyperlinkedSerializer(serializers.HyperlinkedModelSerializer):
+    owner = serializers.ReadOnlyField(source="owner.username")
+    highlight = serializers.HyperlinkedIdentityField(
+        view_name="snippet-highlight", format="html"
+    )
+
+    class Meta:
+        model = Snippet
+        fields = ["url", "id", "highlight", "owner", "title", "code", "linenos", "language", "style"]
+
+class UserHyperlinkedSerializer(serializers.HyperlinkedModelSerializer):
+    snippets = serializers.HyperlinkedRelatedField(
+        many=True, view_name="snippet-detail", read_only=True
+    )
+
+    class Meta:
+        model = User 
+        fields = ["url", "id", "username", "snippets"]

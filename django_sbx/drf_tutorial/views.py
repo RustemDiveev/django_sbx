@@ -3,13 +3,15 @@ from django.http import HttpResponse, JsonResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404
 
-from rest_framework import viewsets, permissions, status, generics, mixins 
+from rest_framework import viewsets, permissions, status, generics, mixins, renderers
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
+from rest_framework.reverse import reverse 
 
-from drf_tutorial.serializers import QSGroupSerializer, QSUserSerializer, SnippetModelSerializer, UserSerializer
+from drf_tutorial.serializers import QSGroupSerializer, QSUserSerializer, SnippetModelSerializer, \
+    UserSerializer, SnippetHyperlinkedSerializer, UserHyperlinkedSerializer
 from drf_tutorial.models import Snippet 
 from drf_tutorial.permissions import IsOwnerOrReadOnly
 
@@ -276,11 +278,13 @@ class SnippetGenericDetail(generics.RetrieveUpdateDestroyAPIView):
 # Добавление представлений только на чтение 
 class UserList(generics.ListAPIView):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    # serializer_class = UserSerializer
+    serializer_class = UserHyperlinkedSerializer
 
 class UserDetail(generics.RetrieveAPIView):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    # serializer_class = UserSerializer
+    serializer_class = UserHyperlinkedSerializer
 
 """
     permissions.IsAuthenticatedOrReadOnly 
@@ -290,7 +294,8 @@ class UserDetail(generics.RetrieveAPIView):
 
 class SnippetAuthPermList(generics.ListCreateAPIView):
     queryset = Snippet.objects.all()
-    serializer_class = SnippetModelSerializer
+    # serializer_class = SnippetModelSerializer
+    serializer_class = SnippetHyperlinkedSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     # Можно переопределить этот метод для контроля управления сохранением экземпляра модели 
@@ -300,9 +305,34 @@ class SnippetAuthPermList(generics.ListCreateAPIView):
 
 class SnippetAuthPermDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Snippet.objects.all()
-    serializer_class = SnippetModelSerializer
+    # serializer_class = SnippetModelSerializer
+    serializer_class = SnippetHyperlinkedSerializer
     permission_classes = [
         permissions.IsAuthenticatedOrReadOnly,
         IsOwnerOrReadOnly,
     ]
-    
+
+# создание корневого эндпойнта для API 
+# аля единая точка входа 
+@api_view(["GET"])
+def api_root(request, format=None):
+    return Response({
+        "users": reverse("user-list", request=request, format=format),
+        "snippets": reverse("snippet-list", request=request, format=format)
+    })
+
+"""
+    Endpoint для поля highlight 
+    Необходимо html-представление 
+    Есть два HTML-отрисовщика, которыми располагает REST framework:
+    1. Отрисовывает HTML используя шаблоны 
+    2. Для пре-отрисованного HTML
+    Используем второй 
+"""
+class SnippetHighlight(generics.GenericAPIView):
+    queryset = Snippet.objects.all()
+    renderer_classes = [renderers.StaticHTMLRenderer]
+
+    def get(self, request, *args, **kwargs):
+        snippet = self.get_object()
+        return Response(snippet.highlighted)
