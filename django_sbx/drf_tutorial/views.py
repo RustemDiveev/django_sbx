@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 
 from drf_tutorial.serializers import QSGroupSerializer, QSUserSerializer, SnippetModelSerializer, UserSerializer
 from drf_tutorial.models import Snippet 
+from drf_tutorial.permissions import IsOwnerOrReadOnly
 
 # Вместо множества представлений - общее поведение группируется во viewset
 class QSUserViewSet(viewsets.ModelViewSet):
@@ -300,5 +301,8 @@ class SnippetAuthPermList(generics.ListCreateAPIView):
 class SnippetAuthPermDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Snippet.objects.all()
     serializer_class = SnippetModelSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [
+        permissions.IsAuthenticatedOrReadOnly,
+        IsOwnerOrReadOnly,
+    ]
     

@@ -74,7 +74,8 @@ class SnippetModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Snippet
-        fields = ["id", "title", "code", "linenos", "language", "style", "owner"]
+        fields = ("id", "owner", "title", "code", "linenos", "language", "style")
+
 
 # Добавление endpoint для модели User 
 class UserSerializer(serializers.ModelSerializer):
@@ -84,5 +85,5 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User 
-        fields = ["id", "username", "snippets"]
+        fields = ("id", "username", "snippets")
         
