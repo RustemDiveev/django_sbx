@@ -281,6 +281,12 @@ class UserDetail(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+"""
+    permissions.IsAuthenticatedOrReadOnly 
+    Класс permission, который удостоверяется в том, что запрос с аутентификацией получает доступ на чтение и запись,
+    а запрос без аутентификации - только на чтение
+"""
+
 class SnippetAuthPermList(generics.ListCreateAPIView):
     queryset = Snippet.objects.all()
     serializer_class = SnippetModelSerializer

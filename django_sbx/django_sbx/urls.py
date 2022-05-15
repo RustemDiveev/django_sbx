@@ -24,3 +24,5 @@ urlpatterns = [
     path('drf/', include('drf_tutorial.urls')),
     path('api-auth/', include('rest_framework.urls')),
 ]
+
+# при добавлении представлений для логина и логаута - необходимо к URL добавлять login и logout 
