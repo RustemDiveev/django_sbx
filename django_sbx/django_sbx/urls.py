@@ -23,6 +23,7 @@ urlpatterns = [
     path('django_tutorial/', include('django_tutorial.urls')),
     path('drf/', include('drf_tutorial.urls')),
     path('api-auth/', include('rest_framework.urls')),
+    path('drf-nested-url/', include('drf_nested_url.urls')),
 ]
 
 # при добавлении представлений для логина и логаута - необходимо к URL добавлять login и logout 
