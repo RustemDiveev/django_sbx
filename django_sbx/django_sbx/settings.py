@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
     'django_tutorial',
     'drf_tutorial',
+    'drf_nested_url',
 ]
 
 MIDDLEWARE = [
