@@ -26,6 +26,8 @@ class House(models.Model):
         unique=True
     )
 
+    def __str__(self):
+        return f"<House: {self.name}>"
 
 class Human(models.Model):
     """
@@ -47,6 +49,9 @@ class Human(models.Model):
             ("name", "surname")
         )
 
+    def __str__(self):
+        return f"<Human: {self.name} {self.surname}>"
+
 
 class Phone(models.Model):
     """
@@ -57,7 +62,7 @@ class Phone(models.Model):
     purchase_date = models.DateField()
     price = models.IntegerField()
     slug = AutoSlugField(
-        populate_from=("model", "purchase_date"),
+        populate_from="slug_populate_from",
         slugify_function=slugify_function,
         overwrite=True,
         max_length=1000,
@@ -68,6 +73,16 @@ class Phone(models.Model):
         unique_together = (
             ("model", "purchase_date")
         )
+    
+    def slug_populate_from(self):
+        """
+            Для того, чтобы работало slug-поле 
+            У нас есть дата, её надо насильно привести к строчному виду
+        """
+        return f"{self.model} {str(self.purchase_date)}"
+
+    def __str__(self):
+        return f"<Phone: {self.model} purchased on {str(self.purchase_date)}>"
 
     
 class Contact(models.Model):
@@ -90,3 +105,6 @@ class Contact(models.Model):
         unique_together = (
             ("name", "surname", "phone_number")
         )
+
+    def __str__(self):
+        return f"<Phone: {self.name} {self.surname} {self.phone_number}>"

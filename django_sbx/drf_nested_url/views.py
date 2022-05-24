@@ -10,6 +10,10 @@ class HouseViewset(ModelViewSet):
     """
     queryset = House.objects.all()
     serializer_class = HouseSerializer
+    # Эти два поля жизненно необходимы, чтобы сгенерировать правильную ссылку 
+    # В нашем случае со slug, а не с pk на конце 
+    lookup_field = "slug"
+    lookup_url_kwarg = "slug"
 
 
 class HumanViewset(ModelViewSet):
@@ -18,6 +22,8 @@ class HumanViewset(ModelViewSet):
     """
     queryset = Human.objects.all()
     serializer_class = HumanSerializer
+    lookup_field = "slug"
+    lookup_url_kwarg = "slug"
 
 
 class PhoneViewset(ModelViewSet):
@@ -26,6 +32,8 @@ class PhoneViewset(ModelViewSet):
     """
     queryset = Phone.objects.all()
     serializer_class = PhoneSerializer
+    lookup_field = "slug"
+    lookup_url_kwarg = "slug"
 
 
 class ContactViewset(ModelViewSet):
@@ -34,3 +42,5 @@ class ContactViewset(ModelViewSet):
     """
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
+    lookup_field = "slug"
+    lookup_url_kwarg = "slug"

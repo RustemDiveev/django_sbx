@@ -10,3 +10,6 @@ router.register("phones", PhoneViewset)
 router.register("contacts", ContactViewset)
 
 urlpatterns = router.urls
+
+# Это важно, чтобы резолвить URL в сериализаторах 
+app_name = "drf_nested_url"

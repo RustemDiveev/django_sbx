@@ -7,4 +7,4 @@ def slugify_function(text: str) -> str:
         Строка вида текст1-текст2-...-текстn
         То, что переваривает браузер
     """
-    return slugify(text=str, lowercase=True)
+    return slugify(text=text, lowercase=True)
