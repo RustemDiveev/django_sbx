@@ -7,10 +7,15 @@ class HouseSerializer(serializers.HyperlinkedModelSerializer):
     """
         Сериализатор для дома 
     """
+    humans = serializers.HyperlinkedIdentityField(
+        view_name="drf_nested_url:house-human-list",
+        lookup_field="slug",
+        lookup_url_kwarg="parent_lookup_house_fk__slug"
+    )
 
     class Meta:
         model = House 
-        fields = ("slug", "url", "name", "address")
+        fields = ("slug", "url", "name", "address", "humans")
         extra_kwargs = {
             "url": {"view_name": "drf_nested_url:house-detail", "lookup_field": "slug"}
         }

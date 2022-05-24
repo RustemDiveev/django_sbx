@@ -4,7 +4,13 @@ from .views import HouseViewset, HumanViewset, PhoneViewset, ContactViewset
 
 router = ExtendedDefaultRouter()
 
-router.register("houses", HouseViewset)
+houses_router = router.register("houses", HouseViewset)
+houses_router = houses_router.register(
+    "humans", HumanViewset, 
+    parents_query_lookups=["house_fk__slug"],
+    basename="house-human"
+)
+
 router.register("humans", HumanViewset)
 router.register("phones", PhoneViewset)
 router.register("contacts", ContactViewset)

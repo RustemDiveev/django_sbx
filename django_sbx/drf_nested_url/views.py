@@ -1,10 +1,12 @@
 from rest_framework.viewsets import ModelViewSet
 
+from rest_framework_extensions.mixins import NestedViewSetMixin
+
 from .models import House, Human, Phone, Contact 
 from .serializers import HouseSerializer, HumanSerializer, PhoneSerializer, ContactSerializer
 
 
-class HouseViewset(ModelViewSet):
+class HouseViewset(NestedViewSetMixin, ModelViewSet):
     """
         Вьюсет для дома 
     """
@@ -16,7 +18,7 @@ class HouseViewset(ModelViewSet):
     lookup_url_kwarg = "slug"
 
 
-class HumanViewset(ModelViewSet):
+class HumanViewset(NestedViewSetMixin, ModelViewSet):
     """
         Вьюсет для человека 
     """
@@ -26,7 +28,7 @@ class HumanViewset(ModelViewSet):
     lookup_url_kwarg = "slug"
 
 
-class PhoneViewset(ModelViewSet):
+class PhoneViewset(NestedViewSetMixin, ModelViewSet):
     """
         Вьюсет для телефона 
     """
@@ -36,7 +38,7 @@ class PhoneViewset(ModelViewSet):
     lookup_url_kwarg = "slug"
 
 
-class ContactViewset(ModelViewSet):
+class ContactViewset(NestedViewSetMixin, ModelViewSet):
     """
         Вьюсет для телефонного контакта 
     """
