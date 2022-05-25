@@ -5,7 +5,7 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 from .models import House, Human, Phone, Contact 
 from .serializers import (
     HouseSerializer, HumanSerializer, PhoneSerializer, ContactSerializer,
-    HumanNestedSerializer, PhoneNestedSerializer
+    HumanNestedSerializer, PhoneNestedSerializer, ContactNestedSerializer
 )
 
 
@@ -76,4 +76,14 @@ class PhoneNestedViewSet(NestedViewSetMixin, ModelViewSet):
     """
     queryset = Phone.objects.all()
     serializer_class = PhoneNestedSerializer
+    lookup_field = "slug"
+    lookup_kwargs = "parent_lookup_house_fk__human_fk__slug"
+
+
+class ContactNestedViewSet(NestedViewSetMixin, ModelViewSet):
+    """
+        Вложенный вьюсет для контактного номера
+    """
+    queryset = Contact.objects.all()
+    serializer_class = ContactNestedSerializer
     lookup_field = "slug"

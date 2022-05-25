@@ -85,7 +85,7 @@ class HumanNestedSerializer(serializers.HyperlinkedModelSerializer):
     phones = MultipleLookupsHyperLinkedIdentityField(
         view_name="drf_nested_url:house-human-phone-list",
         lookup_fields=(
-            ("house_fk.slug", "parent_lookup_human__house_fk__slug"), ("slug", "parent_lookup_human__slug")
+            ("house_fk.slug", "parent_lookup_human_fk__house_fk__slug"), ("slug", "parent_lookup_human_fk__slug")
         )
     )
     
@@ -94,11 +94,56 @@ class HumanNestedSerializer(serializers.HyperlinkedModelSerializer):
         fields = ("slug", "url", "name", "surname", "phones")
 
 
+class PhoneHyperLink(serializers.HyperlinkedIdentityField):
+
+    def get_url(self, obj, view_name, request, format):
+        url_kwargs = {
+            "parent_lookup_human_fk__house_fk__slug": obj.human_fk.house_fk.slug,
+            "parent_lookup_human_fk__slug": obj.human_fk.slug,
+            "slug": obj.slug
+        }
+
+        return reverse(viewname=view_name, kwargs=url_kwargs, request=request, format=format)
+
+
 class PhoneNestedSerializer(serializers.HyperlinkedModelSerializer):
     """
         Вложенный сериализатор для телефона 
     """
+    url = PhoneHyperLink(view_name="drf_nested_url:house-human-phone-detail")
+    contacts = MultipleLookupsHyperLinkedIdentityField(
+        view_name="drf_nested_url:house-human-phone-contact-list",
+        lookup_fields=(
+            ("human_fk.house_fk.slug", "parent_lookup_phone_fk__human_fk__house_fk__slug"),
+            ("human_fk.slug", "parent_lookup_phone_fk__human_fk__slug"),
+            ("slug", "parent_lookup_phone_fk__slug")
+        )
+    )
     
     class Meta:
         model = Phone 
-        fields = ("slug", "model", "purchase_date", "price")
+        fields = ("slug", "url", "model", "purchase_date", "price", "contacts")
+
+
+class ContactHyperLink(serializers.HyperlinkedIdentityField):
+    
+    def get_url(self, obj, view_name, request, format):
+        url_kwargs = {
+            "parent_lookup_phone_fk__human_fk__house_fk__slug": obj.phone_fk.human_fk.house_fk.slug,
+            "parent_lookup_phone_fk__human_fk__slug": obj.phone_fk.human_fk.slug,
+            "parent_lookup_phone_fk__slug": obj.phone_fk.slug,
+            "slug": obj.slug
+        }
+
+        return reverse(viewname=view_name, kwargs=url_kwargs, request=request, format=format)
+
+
+class ContactNestedSerializer(serializers.HyperlinkedModelSerializer):
+    """
+        Вложенный сериализатор для контактного номера 
+    """
+    url = ContactHyperLink(view_name="drf_nested_url:house-human-phone-contact-detail")
+    
+    class Meta:
+        model = Contact 
+        fields = ("slug", "url", "name", "surname", "phone_number")
