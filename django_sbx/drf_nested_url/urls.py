@@ -1,14 +1,22 @@
 from rest_framework_extensions.routers import ExtendedDefaultRouter
 
-from .views import HouseViewset, HumanViewset, PhoneViewset, ContactViewset
+from .views import (
+    HouseViewset, HumanViewset, PhoneViewset, ContactViewset,
+    HumanNestedViewSet, PhoneNestedViewSet
+)
 
 router = ExtendedDefaultRouter()
 
 houses_router = router.register("houses", HouseViewset)
 houses_router = houses_router.register(
-    "humans", HumanViewset, 
+    "humans", HumanNestedViewSet, 
     parents_query_lookups=["house_fk__slug"],
     basename="house-human"
+)
+houses_router = houses_router.register(
+    "phones", PhoneNestedViewSet,
+    parents_query_lookups=["human_fk__house_fk__slug", "human_fk__slug"],
+    basename="house-human-phone"
 )
 
 router.register("humans", HumanViewset)

@@ -138,3 +138,6 @@ postgresql.sql
 
 # Superuser settings 
 django_superuser.txt 
+
+# IDE 
+.vscode
