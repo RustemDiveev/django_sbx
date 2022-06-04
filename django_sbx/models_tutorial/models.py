@@ -60,3 +60,22 @@ class PkModel(models.Model):
     pk_column = models.CharField(max_length=100, primary_key=True)
     char_column = models.CharField(max_length=100)
     
+
+class UniqueModel(models.Model):
+    """
+        Для проверки unique 
+    """
+    unique_column = models.CharField(max_length=100, unique=True)
+
+
+class VerboseNameModel(models.Model):
+    """
+        Для проверки verbose_name 
+        1. Все типы полей, кроме ForeignKey, ManyToManyField, OneToOneField - опционально принимают первым параметром строку с понятным описанием поля 
+        2. Если параметр не указан, то django создаст его автоматически заменив нижние подчеркивания в названии переменной поля на пробелы 
+        3. По конвенции можно не писать в верхнем регистре первую букву в verbose_name 
+    """
+    without_description = models.IntegerField()
+    with_description = models.IntegerField("field with description")
+    with_verbose_name = models.IntegerField(verbose_name="column with verbose name")
+
