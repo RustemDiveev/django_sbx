@@ -79,3 +79,18 @@ class VerboseNameModel(models.Model):
     with_description = models.IntegerField("field with description")
     with_verbose_name = models.IntegerField(verbose_name="column with verbose name")
 
+"""
+    Связь многие к одному - django.db.models.ForeignKey 
+"""
+
+class Manufacturer(models.Model):
+    name = models.CharField(max_length=100)
+
+
+class Car(models.Model):
+    name = models.CharField(max_length=100)
+    manufacturer = models.ForeignKey(
+        Manufacturer,
+        on_delete=models.CASCADE
+    )
+    
