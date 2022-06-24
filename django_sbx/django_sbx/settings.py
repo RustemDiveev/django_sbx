@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django_tutorial',
     'drf_tutorial',
     'drf_nested_url',
+    'audit_and_scd',
 ]
 
 MIDDLEWARE = [
