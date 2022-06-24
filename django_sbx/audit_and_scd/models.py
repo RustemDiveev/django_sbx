@@ -62,3 +62,16 @@ def get_dynamic_model_v2():
     }
 
     return type("DynamicModelV2", (AbstractBaseModel,), attrs)
+
+
+class UniqueTogetherSingleFieldModel(models.Model):
+    name_1 = models.CharField(max_length=100, unique=True)
+    name_2 = models.CharField(max_length=100)
+
+    class Meta:
+        unique_together = (
+            ("name_1",),
+            ("name_2",),
+            ("name_1", "name_2"),
+        )
+        
