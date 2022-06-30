@@ -127,6 +127,9 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Включил атомарные запросы 
+ATOMIC_REQUESTS = True
+
 # Django Rest Framework 
 # Включение пагинации 
 REST_FRAMEWORK = {
