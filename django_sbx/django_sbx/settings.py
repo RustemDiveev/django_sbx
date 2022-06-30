@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'drf_tutorial',
     'drf_nested_url',
     'audit_and_scd',
+    'transaction_management',
 ]
 
 MIDDLEWARE = [
