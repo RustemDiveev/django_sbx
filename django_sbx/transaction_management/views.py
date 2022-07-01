@@ -36,17 +36,17 @@ class TransactionTutorialAdditionalDBViewset(ModelViewSet):
                         try:
                             row.save()
                         except DatabaseError as err:
-                            errors.append(err)
+                            errors.append(err.args[0])
                 if errors:
-                    raise DatabaseError
+                    raise DatabaseError("Transaction rollbacked")
         except DatabaseError as err:
-            return Response({"status": "error", "errors_cnt": len(errors)}, status=HTTP_400_BAD_REQUEST)
+            return Response({"status": "error", "errors": errors}, status=HTTP_400_BAD_REQUEST)
 
         return Response({"status": "success"}, status=HTTP_200_OK)
 
 
 """
-пример вставляемых данных 
+пример вставляемых данных, вызывающих DatabaseError:
 [
     {
         "attr_u": "B",
@@ -55,65 +55,34 @@ class TransactionTutorialAdditionalDBViewset(ModelViewSet):
         "attr_ut_2": "B"
     }, 
     {
-        "attr_u": "A",
-        "attr_nn": "A1",
-        "attr_ut_1": "A1",
-        "attr_ut_2": "A1"
-    }, 
+        "attr_u": "B",
+        "attr_nn": "B",
+        "attr_ut_1": "B",
+        "attr_ut_2": "B"
+    },
     {
         "attr_u": "C",
-        "attr_nn": null,
-        "attr_ut_1": "A2",
-        "attr_ut_2": "A2"
-    }, 
+        "attr_nn": "C",
+        "attr_ut_1": "C",
+        "attr_ut_2": "C"
+    },
+    {
+        "attr_u": "C",
+        "attr_nn": "C",
+        "attr_ut_1": "C",
+        "attr_ut_2": "C"
+    },
     {
         "attr_u": "D",
         "attr_nn": "D",
-        "attr_ut_1": "A",
-        "attr_ut_2": "A"
-    }
-]
-
-[
-    {
-        "attr_u": "B",
-        "attr_nn": "B",
-        "attr_ut_1": "B",
-        "attr_ut_2": "B"
-    }, 
-    {
-        "attr_u": "C",
-        "attr_nn": null,
-        "attr_ut_1": "A2",
-        "attr_ut_2": "A2"
-    }
-]
-
-
-[
-    {
-        "attr_u": "B",
-        "attr_nn": "B",
-        "attr_ut_1": "B",
-        "attr_ut_2": "B"
-    }, 
-    {
-        "attr_u": "B",
-        "attr_nn": "B",
-        "attr_ut_1": "B",
-        "attr_ut_2": "B"
+        "attr_ut_1": "D",
+        "attr_ut_2": "D"
     },
     {
-        "attr_u": "C",
-        "attr_nn": "C",
-        "attr_ut_1": "C",
-        "attr_ut_2": "C"
-    },
-    {
-        "attr_u": "C",
-        "attr_nn": "C",
-        "attr_ut_1": "C",
-        "attr_ut_2": "C"
+        "attr_u": "D",
+        "attr_nn": "D",
+        "attr_ut_1": "D",
+        "attr_ut_2": "D"
     }
 ]
 """
