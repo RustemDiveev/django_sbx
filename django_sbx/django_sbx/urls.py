@@ -24,6 +24,7 @@ urlpatterns = [
     path('drf/', include('drf_tutorial.urls')),
     path('api-auth/', include('rest_framework.urls')),
     path('drf-nested-url/', include('drf_nested_url.urls')),
+    path('transaction-management/', include('transaction_management.urls')),
 ]
 
 # при добавлении представлений для логина и логаута - необходимо к URL добавлять login и logout 
