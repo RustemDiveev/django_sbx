@@ -365,8 +365,64 @@ EXCEPTION
 	... ]
 END;
 
-Если ошибка не возникает, то такой блок просто выполняет statements, а затем контроль передается к следующему выражению после END. Но если ошибка возникает внутри statements, дальнейшая обраьотка statements не выполняется и управление переается к списку EXCEPTION. В списке ищется первое условие к
+Если ошибка не возникает, то такой блок просто выполняет statements, а затем контроль передается к следующему выражению после END. Но если ошибка возникает внутри statements, дальнейшая обработка statements не выполняется и управление передается к списку EXCEPTION. В списке ищется первый condition, совпавший с возникшей ошибкой. Если совпадение найдено, то выполняются соответствующие handler_statements, а далее контроль передается следующему выражению после END. Если совпадения не найдено, то ошибка продвигается наверх, так как будто конструкции EXCEPTION нет - ошибку можно поймать при помощи внешнего блока EXCEPTION, или если нет ничего, что может прекратить выполнение функции. 
 
+За именами condition - обращаться к документации (Appendix A). Название категории совпадает с любой ошибкой внутри категории. Специальное название condition OTHERS совпадает с каждым типом ошибки кроме QUERY_CANCELED и ASSERT_FAILURE. Название condition не чувствительно к регистру. Также можно указать код SQLSTATE, оба примера ниже эквивалентны:
+
+WHEN division_by_zero THEN ... 
+WHEN SQLSTATE '22012' THEN ...
+
+Если возникает новая ошибка внутри выбранных handler_statements, она не может быть поймана через EXCEPTION, но продвигается наверх. Её можно поймать через EXCEPTION. 
+
+Когда ошибка поймана при помощи EXCEPTION, локальные переменные PL/pgSQL функции остаются такими же, как и были, когда возникла ошибка, но все изменения сделанные с БД внутри блока - откатываются. Например:
+
+INSERT INTO mytab(firstname, lastname) VALUES('Tom', 'Jones');
+BEGIN 
+	UPDATE mytab SET firstname = 'Joe' WHERE lastname = 'Jones';
+	x := x + 1;
+	y := x / 0;
+EXCEPTION 
+	WHEN division_by_zero THEN 
+		RAISE NOTICE 'caught division_by_zero';
+		RETURN x;
+END;
+
+Когда управление добирается до присваиванию y, оно падает с ошибкой division_by_zero. Это будет поймано в EXCEPTION. Возвращаемое значение в RETURN - инкрементированное значение x, но эффект команды UPDATE будут откачены. Команда INSERT перед блоком не будет откачена. 
+
+В блок, содержащий EXCEPTION гораздо более дороже войти и выйти, по сравнению с блоком без EXCEPTION - не стоит использовать его там, где он не нужен. 
+
+Следующий пример демонстрирует обработку исключений, чтобы выполнить или UPDATE или INSERT. Рекомендуется, чтобы приложение использовало INSERT с ON CONFLICT DO UPDATE, чем следовать паттерну в примере: 
+
+CREATE TABLE db (a INT PRIMARY KEY, b TEXT);
+
+CREATE FUNCTION merge_db(key INT, data TEXT) RETURNS VOID AS 
+$$ 
+BEGIN 
+	LOOP
+		-- first try to update the key 
+		UPDATE db SET b = data WHERE a = key;
+		IF found THEN 
+			RETURN;
+		END IF;
+		-- if not found try to insert 
+		BEGIN 
+			INSERT INTO db(a,b) VALUES (key, data);
+			RETURN;
+		EXCEPTION WHEN unique_violation THEN 
+			-- Do nothing 
+		END;
+	END LOOP;
+END;
+$$ 
+LANGUAGE plpgsql; 
+
+SELECT merge_db(1, 'david');
+SELECT merge_db(1, 'dennis');
+
+Код предполагает, что unique_violation может возникнуть из-за INSERT, а не, например INSERT в триггере. 
+
+---------- Получение информации об ошибке ---------- 	
+(1275)
 
  
 
