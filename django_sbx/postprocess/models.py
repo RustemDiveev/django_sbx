@@ -119,3 +119,25 @@ class DogStgDelete(models.Model):
         unique_together = (
             ("dml_operation_id", "name"),
         )
+
+
+class CatalogOneModel(models.Model):
+    catalog_one = models.TextField()
+
+
+class CatalogTwoModel(models.Model):
+    catalog_two = models.TextField()
+
+
+class CatalogOneModelWithMeta(models.Model):
+    catalog_one = models.TextField()
+
+    class Meta:
+        db_table = 'catalog_one"."postprocess_catalogonemodelwithmeta'
+
+
+class CatalogTwoModelWithMeta(models.Model):
+    catalog_two = models.TextField()
+
+    class Meta:
+        db_table = 'catalog_two"."postprocess_catalogtwomodelwithmeta'

@@ -47,6 +47,12 @@ class PostprocessRouter:
                 return True 
             elif db == "data_stg" and model_name in self.data_stg_db_model_names:
                 return True 
+            elif db in ("pp_catalog_one") and model_name in ("catalogonemodel", "django_migrations"):
+                return True
+            elif db in ("pp_catalog_two") and model_name in ("catalogtwomodel", "django_migrations"):
+                return True
+            elif db in ("postprocess") and model_name in ("catalogonemodelwithmeta", "catalogtwomodelwithmeta"):
+                return True
             else:
                 return False 
         elif db in ("data", "data_stg"):
