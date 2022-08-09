@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'drf_nested_url',
     'audit_and_scd',
     'transaction_management',
+    'postprocess',
 ]
 
 MIDDLEWARE = [
@@ -145,3 +146,8 @@ REST_FRAMEWORK |= {
     ],
 }
 """
+
+# Роутеры БД 
+DATABASE_ROUTERS = [
+    "postprocess.db_routers.PostprocessRouter",
+]
