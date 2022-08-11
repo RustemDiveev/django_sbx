@@ -122,3 +122,7 @@ GRANT USAGE ON FOREIGN SERVER bob_server TO alice;
 -- то процедура будет падать с ошибкой
 -- но если все вернуть, то работает 
 -- поэтому можно пересоздавать внешние таблицы и не трогать процедуры
+-- простейший способ 
+DROP FOREIGN TABLE bob_test;
+IMPORT FOREIGN SCHEMA public LIMIT TO (bob_test)
+    FROM SERVER bob_server INTO public;
