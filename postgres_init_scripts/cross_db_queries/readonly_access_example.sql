@@ -48,9 +48,72 @@ grant select on all tables in schema public to bob_readonly;
 -- в моем случае это bob_db (bob)
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO bob_readonly;
 
+-- postgres (postgres)
+CREATE USER alice_postprocess PASSWORD 'alice_postprocess';
+GRANT CONNECT ON DATABASE alice_db TO alice_postprocess;
+
+-- пользователь alice_postprocess должен уметь подключаться только к alice_db, +
+
+-- не может удалять существующие и создавать новые таблицы
+-- может изменять данные в существующих таблицах 
+-- может создавать процедуры / функции 
+-- alice_db (diveevri)
+REVOKE CREATE ON SCHEMA public FROM public;
+GRANT CREATE ON SCHEMA public TO alice;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO alice_postprocess;
+
+-- alice_db(alice)
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO alice_postprocess;
+
+-- Ситуация следующая - нельзя давать пользователю создавать новые и удалять существующие объекты 
+-- это сделать удалось, но для создания функций и процедур нужна привилегия на create 
+-- а мы её отозвали ранее 
+-- поэтому придется создать новую схему - в которой дать пользователю привилегию на создание 
+
+-- alice_db (diveevri)
+create schema pp;
+grant create on schema pp to alice_postprocess;
+-- вот сейчас круто - создавать могу, но не могу дропать и выполнять 
+GRANT USAGE ON SCHEMA pp TO alice_postprocess;
+-- сейчас типи топ, могу читать из public, могу создавать и выполнять процедуры и функции в схеме pp
+
+-- часть, связанная с созданием внешних таблиц и использованием foreign data wrapper 
+-- пока все делаю под суперпользователем 
+-- alice_db (diveevri)
+CREATE EXTENSION postgres_fdw;
+
+CREATE SERVER bob_server 
+FOREIGN DATA WRAPPER postgres_fdw OPTIONS (
+    host 'localhost',
+    port '5432',
+    dbname 'bob_db'
+);
+
+-- нужно, чтобы alice_postprocess могла читать из внешних таблиц
+CREATE USER MAPPING FOR alice_postprocess SERVER bob_server OPTIONS (
+    user 'bob_readonly', password 'bob_readonly'
+);
+
+-- нужно, чтобы owner бд мог создавать внешние таблицы 
+-- при каждом создании таблиц в public.alice_db 
+CREATE USER MAPPING FOR alice SERVER bob_server OPTIONS (
+    user 'bob_readonly', password 'bob_readonly'
+);
+
+-- create foreign table необходимо выполнять не под суперпользователем 
+-- alice_db (alice)
 /*
-    TODO:
-    1. Необходимо зарегистрировать пользователя alice_postprocess с подключением только к alice_db 
-    2. Необходимо сделать так, чтобы alice_postprocess был натравлен на bob_db 
-    3. Необходимо сделать так, чтобы alice_postprocess мог как создавать процедуры, так и читать из внешних таблиц, так и читать из таблиц public.
+create foreign table bob_test (
+    id integer
+) 
+server bob_server options (
+    schema_name 'public',
+    table_name 'bob_test'
+);
 */
+
+-- alice_db (diveevri)
+GRANT USAGE ON FOREIGN SERVER bob_server TO alice;
+
+-- теперь foreign table создается 
+-- УРА!
